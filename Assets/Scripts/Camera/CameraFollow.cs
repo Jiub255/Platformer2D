@@ -32,6 +32,11 @@ public class CameraFollow : MonoBehaviour
 
     private void Update()
     {
+        if ((transform.position.y - _follow.position.y) > _offset.y)
+        {
+            _targetYPosition = _follow.position.y; 
+        }
+
         // SmoothDamp toward player's x position. 
         float x = Vector3.SmoothDamp(
             transform.position,

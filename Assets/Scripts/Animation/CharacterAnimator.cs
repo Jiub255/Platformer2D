@@ -1,21 +1,23 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimationStateMachine : MonoBehaviour
+public class CharacterAnimator : MonoBehaviour
 {
 	public float MoveX { get; set; }
 	public float LastX { get; set; }
 	public bool IsJumping { get; set; }
 
+	[SerializeField]
+	private float _timePerFrame = 0.16f; 
+
 	private SpriteRenderer _spriteRenderer; 
 
 	// States 
-	private SpriteAnimator _walkAnimation; 
-	private SpriteAnimator _jumpAnimation; 
-	private SpriteAnimator _idleAnimation;
+	private SpriteAnimation _walkAnimation; 
+	private SpriteAnimation _jumpAnimation; 
+	private SpriteAnimation _idleAnimation;
 
-	private SpriteAnimator _currentAnimation; 
+	private SpriteAnimation _currentAnimation; 
 
 	// State Sprites 
 	[SerializeField]
@@ -29,9 +31,9 @@ public class AnimationStateMachine : MonoBehaviour
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
 
-		_walkAnimation = new SpriteAnimator(_walkSprites, _spriteRenderer);
-		_jumpAnimation = new SpriteAnimator(_jumpSprites, _spriteRenderer);
-		_idleAnimation = new SpriteAnimator(_idleSprites, _spriteRenderer);
+		_walkAnimation = new SpriteAnimation(_walkSprites, _spriteRenderer, _timePerFrame);
+		_jumpAnimation = new SpriteAnimation(_jumpSprites, _spriteRenderer, _timePerFrame);
+		_idleAnimation = new SpriteAnimation(_idleSprites, _spriteRenderer, _timePerFrame);
 
 		_currentAnimation = _walkAnimation;
     }
@@ -41,15 +43,15 @@ public class AnimationStateMachine : MonoBehaviour
 		// Flips sprite if facing left. 
 		if (LastX < 0f)
         {
-			transform.localScale = new Vector3(-1f, 0f, 0f);
+			transform.localScale = new Vector3(-1f, 1f, 1f);
         }
 		else
         {
-			transform.localScale = new Vector3(1f, 0f, 0f);
+			transform.localScale = new Vector3(1f, 1f, 1f);
         }
 
 		// Update current animation. 
-		SpriteAnimator previousAnimation = _currentAnimation;
+		SpriteAnimation previousAnimation = _currentAnimation;
 
 		// Jumping 
 		if (IsJumping)

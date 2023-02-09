@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterAnimation : MonoBehaviour
+public class CharacterAnimatorSimple : MonoBehaviour
 {
 	[SerializeField]
 	private List<Sprite> sprites;
 
-	private SpriteAnimator spriteAnimator;
+	private SpriteAnimation spriteAnimator;
 
     private void Start()
     {
-        spriteAnimator = new SpriteAnimator(sprites, GetComponent<SpriteRenderer>());
+        spriteAnimator = new SpriteAnimation(sprites, GetComponent<SpriteRenderer>());
         spriteAnimator.Start();
     }
 

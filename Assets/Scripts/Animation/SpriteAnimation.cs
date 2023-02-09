@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpriteAnimator
+public class SpriteAnimation
 {
 	private List<Sprite> _frames;
 	private SpriteRenderer _spriteRenderer;
@@ -11,8 +10,8 @@ public class SpriteAnimator
 	private int _currentFrame; 
 	private float _timer; 
 
-	// 0.16f ~ 1/60
-	public SpriteAnimator(List<Sprite> frames, SpriteRenderer spriteRenderer, float framerate = 0.16f)
+	// 0.16 ~ 1/60
+	public SpriteAnimation(List<Sprite> frames, SpriteRenderer spriteRenderer, float framerate = 0.16f)
     {
 		_frames = frames;
 		_spriteRenderer = spriteRenderer;

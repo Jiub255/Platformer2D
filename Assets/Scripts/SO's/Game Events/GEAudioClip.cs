@@ -4,12 +4,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Game Event (AudioClip)", menuName = "Game Events/Game Event (AudioClip)")]
 public class GEAudioClip : ScriptableObject
 {
-    private List<GELAudioClip> listeners = new List<GELAudioClip>();
+    private List<GELAudioClip> _listeners = new List<GELAudioClip>();
 
     public void Invoke(AudioClip AudioClip)
     {
         // Why not foreach? Why iterate backwards through list? 
-        foreach (GELAudioClip listener in listeners)
+        foreach (GELAudioClip listener in _listeners)
         {
             listener.OnEventRaised(AudioClip);
         }
@@ -21,10 +21,10 @@ public class GEAudioClip : ScriptableObject
 
     public void RegisterListener(GELAudioClip listener)
     {
-        listeners.Add(listener);
+        _listeners.Add(listener);
     }
     public void UnregisterListener(GELAudioClip listener)
     {
-        listeners.Remove(listener);
+        _listeners.Remove(listener);
     }
 }

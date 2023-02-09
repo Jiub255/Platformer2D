@@ -16,6 +16,7 @@ public class CameraFollow : MonoBehaviour
 
     private Vector3 _velocityX = Vector3.zero;
     private Vector3 _velocityY = Vector3.zero;
+
     private float _targetYPosition;
 
     private void OnEnable()
@@ -32,9 +33,16 @@ public class CameraFollow : MonoBehaviour
 
     private void Update()
     {
+        // Chase player if they get too far down. 
         if ((transform.position.y - _follow.position.y) > _offset.y)
         {
             _targetYPosition = _follow.position.y; 
+        }
+
+        // Chase player if they get too far up. 
+        if ((transform.position.y - _follow.position.y) < -_offset.y)
+        {
+            _targetYPosition = _follow.position.y;
         }
 
         // SmoothDamp toward player's x position. 
@@ -56,13 +64,5 @@ public class CameraFollow : MonoBehaviour
             Time.unscaledDeltaTime).y;
 
         transform.position = new Vector3(x, y, transform.position.z);
-
-/*        transform.position = Vector3.SmoothDamp(
-            transform.position,
-            _follow.position + _offset,
-            ref _velocity,
-            _smoothTime,
-            *//*_maxSpeed*//*Mathf.Infinity,
-            Time.unscaledDeltaTime);*/
     }
 }

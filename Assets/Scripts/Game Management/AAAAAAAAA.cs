@@ -11,7 +11,8 @@ public class AAAAAAAAA
 	Try using ForceMode2D.Force and add smaller forces while button held (for a short time). 
         Make for higher jump if you hold down jump for like a half second or a small jump if you quickly tap jump. 
 
-
+	FIX: 
+		Floating platforms move without you when you're on them. Make it so you move along with them. 
 
 
 

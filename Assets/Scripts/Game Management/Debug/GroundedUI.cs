@@ -15,8 +15,8 @@ public class GroundedUI : MonoBehaviour
     {
         _grounded.text = _isGroundedSO.Value ? "Grounded" : "Not Grounded"; 
 
-        _lastJump.text = "Last Jump Time: " + _playerJump._lastJumpTime.ToString();
+        _lastJump.text = "Last Jump Time: " + _playerJump._jumpInputTimer.ToString();
 
-        _lastGrounded.text = "Last Grounded Time: " + _playerJump._lastGroundedTime.ToString();
+        _lastGrounded.text = "Last Grounded Time: " + _playerJump._leftGroundTimer.ToString();
     }
 }

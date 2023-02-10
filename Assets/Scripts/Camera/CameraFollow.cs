@@ -3,7 +3,7 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     [SerializeField]
-    private Transform _follow;
+    private Transform _followTarget;
 
     [SerializeField]
     private Vector3 _offset;
@@ -26,7 +26,7 @@ public class CameraFollow : MonoBehaviour
     private void OnEnable()
     {
         _camera = GetComponent<Camera>();
-        _targetYPosition = _follow.transform.position.y;
+        _targetYPosition = _followTarget.transform.position.y;
 
        PlayerJump.OnLanded += (y) => _targetYPosition = y;
     }
@@ -39,15 +39,15 @@ public class CameraFollow : MonoBehaviour
     private void Update()
     {
         // Chase player if they get too far down. 
-        if ((transform.position.y - _follow.position.y) > _camera.orthographicSize * 0.5f)
+        if ((transform.position.y - _followTarget.position.y) > _camera.orthographicSize * 0.5f)
         {
-            _targetYPosition = _follow.position.y; 
+            _targetYPosition = _followTarget.position.y; 
         }
 
         // Chase player if they get too far up. 
-        if ((transform.position.y - _follow.position.y) < -(_camera.orthographicSize) * 0.5f)
+        if ((transform.position.y - _followTarget.position.y) < -(_camera.orthographicSize) * 0.5f)
         {
-            _targetYPosition = _follow.position.y;
+            _targetYPosition = _followTarget.position.y;
         }
 
         // Change y-offset if holding down "Look". 
@@ -65,7 +65,7 @@ public class CameraFollow : MonoBehaviour
         // SmoothDamp toward player's x position. 
         float x = Vector3.SmoothDamp(
             transform.position,
-            _follow.position + offset,
+            _followTarget.position + offset,
             ref _velocityX,
             _smoothTime,
             /*_maxSpeed*/Mathf.Infinity,

@@ -2,14 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(CharacterAnimator))]
 public class PlayerJump : MonoBehaviour
 {
     public static event Action<float> OnLanded;
+    public static event Action OnLeftGround;
 
 	[SerializeField, Range(5f, 50f)]
-	private float _jumpForce = 18f;
+	private float _jumpForce = 19f;
 
     [SerializeField, Range(0.25f, 5f)]
     private float _gravityScale = 1f;
@@ -23,9 +22,9 @@ public class PlayerJump : MonoBehaviour
     private float _jumpCutMultiplier = 0.5f;
 
     [SerializeField, Range(0f, 0.5f)]
-    private float _jumpBufferTime = 0.2f; 
+    private float _preLandGracePeriod = 0.2f; 
     [SerializeField, Range(0f, 0.5f)]
-    private float _jumpCoyoteTime = 0.2f; 
+    private float _postFallGracePeriod = 0.2f; 
 
     [SerializeField]
     private LayerMask _groundLayers;
@@ -40,14 +39,15 @@ public class PlayerJump : MonoBehaviour
     private Rigidbody2D _rb;
     private CharacterAnimator _animationStateMachine;
 
-    public float _lastJumpTime { get; private set; }
-    public float _lastGroundedTime { get; private set; }
     private bool _isJumping = false;
+
+    public float _jumpInputTimer { get; private set; }
+    public float _leftGroundTimer { get; private set; }
 
     private void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
-        _animationStateMachine = GetComponent<CharacterAnimator>();
+        _rb = GetComponentInParent<Rigidbody2D>();
+        _animationStateMachine = GetComponentInParent<CharacterAnimator>();
 
         S.I.IM.PC.Gameplay.Jump.started += OnJump;
         S.I.IM.PC.Gameplay.Jump.canceled += CutJump;
@@ -61,22 +61,19 @@ public class PlayerJump : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext obj)
     {
-        _lastJumpTime = _jumpBufferTime;
+        _jumpInputTimer = _preLandGracePeriod;
     }
 
-    private void Jump(/*InputAction.CallbackContext context*/)
+    private void Jump()
     {
-        //if (_isGroundedSO.Value)
-        {
-            // TODO: Try using ForceMode2D.Force and add smaller forces while button held (for a short time). 
-            // Make for higher jump if you hold down jump for like a half second or a small jump if you quickly tap jump. 
+        // TODO: Try using ForceMode2D.Force and add smaller forces while button held (for a short time). 
+        // Make for higher jump if you hold down jump for like a half second or a small jump if you quickly tap jump. 
 
-            _rb.velocity = new Vector2(_rb.velocity.x, 0f); 
-            _rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
-            //_animationStateMachine.IsJumping = true;
-            _onPlayJumpSound.Invoke(_jumpClip);
-            _isJumping = true;
-        }
+        _rb.velocity = new Vector2(_rb.velocity.x, 0f);
+        _rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
+        //_animationStateMachine.IsJumping = true;
+        _onPlayJumpSound.Invoke(_jumpClip);
+        _isJumping = true;
     }
 
     private void CutJump(InputAction.CallbackContext context)
@@ -86,19 +83,19 @@ public class PlayerJump : MonoBehaviour
             _rb.AddForce(Vector2.down * _rb.velocity.y * (1 - _jumpCutMultiplier), ForceMode2D.Impulse);
         }
 
-        _lastJumpTime = 0f;
+        _jumpInputTimer = 0f;
     }
 
     private void Update()
     {
         if (!_isGroundedSO.Value)
         {
-            _lastGroundedTime -= Time.deltaTime;
+            _leftGroundTimer -= Time.deltaTime;
         }
 
-        _lastJumpTime -= Time.deltaTime;
+        _jumpInputTimer -= Time.deltaTime;
 
-        if (_lastGroundedTime > 0 && _lastJumpTime > 0 && !_isJumping)
+        if (_leftGroundTimer > 0 && _jumpInputTimer > 0 && !_isJumping)
         {
             Jump();
         }
@@ -106,14 +103,16 @@ public class PlayerJump : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_rb.velocity.y > 0f)
+        if (_rb.velocity.y >= 0f)
         {
             _rb.gravityScale = _gravityScale;
         }
+        // Set higher gravity while falling. 
         else
         {
             _rb.gravityScale = _fallingGravityScale;
 
+            // Clamp fall speed. 
             if (_rb.velocity.y < -_maxFallSpeed)
             {
                 _rb.velocity = new Vector2(_rb.velocity.x, -_maxFallSpeed);
@@ -121,6 +120,7 @@ public class PlayerJump : MonoBehaviour
         }
     }
 
+    // Called when you land on ground. 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (_groundLayers.Contains(collision.gameObject.layer))
@@ -134,10 +134,11 @@ public class PlayerJump : MonoBehaviour
 
             _isJumping = false;
 
-            _lastGroundedTime = _jumpCoyoteTime;
+            _leftGroundTimer = _postFallGracePeriod;
         }
     }
 
+    // Called when starting falling or jumping. 
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (_groundLayers.Contains(collision.gameObject.layer))
@@ -145,6 +146,8 @@ public class PlayerJump : MonoBehaviour
             _isGroundedSO.Value = false;
 
             _animationStateMachine.IsJumping = true;
+            
+            OnLeftGround?.Invoke();
         }
     }
 }

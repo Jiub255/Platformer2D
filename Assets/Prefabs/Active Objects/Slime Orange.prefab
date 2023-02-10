@@ -104,7 +104,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 0}
   m_Interpolate: 1
   m_SleepingMode: 1
@@ -182,7 +182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d12bb5e86996b45498e2114ebc367297, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hopForce: 7
+  _hopForce: 4
   _timeBetweenHops: 2
   _hopClip: {fileID: 8300000, guid: 454e142ee0781494cb7ebfc3c557a38a, type: 3}
   _onPlayHopSound: {fileID: 11400000, guid: 8ea132df2304d9d4687767de5922639d, type: 2}
@@ -198,3 +198,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 216fd0fd5b9e1b340a9dd3905d020430, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _knockbackForce: 5

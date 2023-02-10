@@ -7,8 +7,8 @@ public class CharacterAnimator : MonoBehaviour
 	public float LastX { get; set; }
 	public bool IsJumping { get; set; }
 
-	[SerializeField]
-	private float _timePerFrame = 0.16f; 
+	[SerializeField, Range(0.01f, 0.25f)]
+	private float _timePerFrame = 0.045f; 
 
 	private SpriteRenderer _spriteRenderer; 
 

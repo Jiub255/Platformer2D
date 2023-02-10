@@ -6,7 +6,7 @@ public class PitDeath : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.GetComponent<PlayerMovement>())
+        if (collision.GetComponent<PlayerMovementRB>())
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }

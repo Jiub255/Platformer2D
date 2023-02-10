@@ -19,8 +19,13 @@ public class CameraFollow : MonoBehaviour
 
     private float _targetYPosition;
 
+    private Camera _camera;
+
+    public float LookOffsetMod { get; set; } = 0f;
+
     private void OnEnable()
     {
+        _camera = GetComponent<Camera>();
         _targetYPosition = _follow.transform.position.y;
 
        PlayerJump.OnLanded += (y) => _targetYPosition = y;
@@ -34,21 +39,33 @@ public class CameraFollow : MonoBehaviour
     private void Update()
     {
         // Chase player if they get too far down. 
-        if ((transform.position.y - _follow.position.y) > _offset.y)
+        if ((transform.position.y - _follow.position.y) > _camera.orthographicSize * 0.5f)
         {
             _targetYPosition = _follow.position.y; 
         }
 
         // Chase player if they get too far up. 
-        if ((transform.position.y - _follow.position.y) < -_offset.y)
+        if ((transform.position.y - _follow.position.y) < -(_camera.orthographicSize) * 0.5f)
         {
             _targetYPosition = _follow.position.y;
+        }
+
+        // Change y-offset if holding down "Look". 
+        Vector3 offset = _offset;
+        if (LookOffsetMod > 0.5f)
+        {
+            offset = new Vector3(_offset.x, _camera.orthographicSize - 1, _offset.z);
+
+        }
+        else if (LookOffsetMod < -0.5f)
+        {
+            offset = new Vector3(_offset.x, -(_camera.orthographicSize) + 1, _offset.z);
         }
 
         // SmoothDamp toward player's x position. 
         float x = Vector3.SmoothDamp(
             transform.position,
-            _follow.position + _offset,
+            _follow.position + offset,
             ref _velocityX,
             _smoothTime,
             /*_maxSpeed*/Mathf.Infinity,
@@ -57,7 +74,7 @@ public class CameraFollow : MonoBehaviour
         // SmoothDamp toward target y position (y coordinate of last ground touched). 
         float y = Vector3.SmoothDamp(
             transform.position,
-            new Vector3(transform.position.x, _targetYPosition, transform.position.z) + _offset,
+            new Vector3(transform.position.x, _targetYPosition, transform.position.z) + offset,
             ref _velocityY,
             _smoothTime,
             /*_maxSpeed*/Mathf.Infinity,

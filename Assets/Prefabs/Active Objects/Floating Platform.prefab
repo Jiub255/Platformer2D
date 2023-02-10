@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 7592840265147833142}
   - component: {fileID: 7592840265147833097}
   - component: {fileID: 7592840265147833096}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: Floating Platform Long
   m_TagString: Untagged
   m_Icon: {fileID: 0}

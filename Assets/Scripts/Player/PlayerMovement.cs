@@ -1,24 +1,31 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(CharacterAnimator))]
 public class PlayerMovement : MonoBehaviour
 {
+    [SerializeField, Range(1f, 30f)]
+    private float _maxSpeed = 10f;
+    [SerializeField, Range(1f, 20f)]
+    private float _acceleration = 7f;
+    [SerializeField, Range(1f, 20f)]
+    private float _deceleration = 7f;
+    [SerializeField, Range(0f, 2f)]
+    private float _velocityPower = 0.9f;
+    [SerializeField, Range(0f, 1f)]
+    private float _frictionAmount = 0.2f;
+
     [SerializeField]
-    private float _speed = 10f;
-    [SerializeField]
-    private float _acceleration = 10f;
+    private BoolSO _isGroundedSO;
 
     private Rigidbody2D _rb;
-    private CharacterAnimator _animationStateMachine;
+    private CharacterAnimator _characterAnimator;
 
     private InputAction _moveAction;
 
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _animationStateMachine = GetComponent<CharacterAnimator>();
+        _characterAnimator = GetComponent<CharacterAnimator>();
 
         // Needs to be in start instead of Awake/OnEnable so IM can have the PC reference ready. 
         _moveAction = S.I.IM.PC.Gameplay.Move;
@@ -26,26 +33,28 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        float movement = _moveAction.ReadValue<float>();
-
-        // Set animation parameters. 
-        _animationStateMachine.MoveX = movement;
-        if (Mathf.Abs(movement) > 0.5f)
+        // Set animation parameters 
+        float moveInput = _moveAction.ReadValue<float>();
+        _characterAnimator.MoveX = moveInput;
+        if (Mathf.Abs(moveInput) > 0.5f)
         {
-            _animationStateMachine.LastX = movement;
+            _characterAnimator.LastX = moveInput;
         }
 
-        float desiredSpeed = movement * _speed;
+        // Run 
+        float targetSpeed = moveInput * _maxSpeed;
+        float speedDifference = targetSpeed - _rb.velocity.x;
+        float accelerationRate = (Mathf.Abs(speedDifference) > 0.01f) ? _acceleration : _deceleration;
+        float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelerationRate, _velocityPower) * Mathf.Sign(speedDifference);
 
-        // If desired speed is 0, apply force in direction opposite to movement to slow down faster. 
-        if (Mathf.Abs(desiredSpeed) < 0.1f)
+        _rb.AddForce(movement * Vector2.right);
+
+        // Friction 
+        if (_isGroundedSO.Value == true && Mathf.Abs(_moveAction.ReadValue<float>()) < 0.1f)
         {
-            _rb.AddForce(new Vector2(-_rb.velocity.x * _acceleration, 0f), ForceMode2D.Force);
-        }
-        // If not at desired speed, add force in that direction until you are. 
-        else if (Mathf.Abs(desiredSpeed - _rb.velocity.x) > 0.1f)
-        {
-            _rb.AddForce(new Vector2((desiredSpeed - _rb.velocity.x) * _acceleration, 0f), ForceMode2D.Force);
+            float amount = Mathf.Min(Mathf.Abs(_rb.velocity.x), Mathf.Abs(_frictionAmount));
+            amount *= Mathf.Sign(_rb.velocity.x);
+            _rb.AddForce(Vector2.right * -amount, ForceMode2D.Impulse);
         }
     }
 }
